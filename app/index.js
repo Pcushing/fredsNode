@@ -1,17 +1,9 @@
-const calc = require('./calc')
+var jsdom = require("jsdom");
 
-const numbersToAdd = [
-  3,
-  4,
-  10,
-  2
-]
-
-const result = calc.sum(numbersToAdd);
-console.log(`The result is: ${result}`);
-
-const _ = require('lodash')
-
-_.assign({ 'a': 1 }, { 'b': 2 }, { 'c': 3 });
-
-console.log(_);
+jsdom.env(
+  "http://games.espn.com/flb/standings?leagueId=108648&seasonId=2017",
+  ["http://code.jquery.com/jquery.js"],
+  function (err, window) {
+    console.log(window.$('td.sortableTeamName a').text());
+  }
+);
