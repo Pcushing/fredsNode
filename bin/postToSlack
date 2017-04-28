@@ -2,7 +2,7 @@
 
 var IncomingWebhook = require('@slack/client').IncomingWebhook;
 
-var url = 'https://hooks.slack.com/services/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'; //process.env.SLACK_WEBHOOK_URL || ''; //see section above on sensitive data
+var url = process.env.SLACK_WEBHOOK_URL || ''; //see section above on sensitive data
 
 var webhook = new IncomingWebhook(url);
 
