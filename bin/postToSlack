@@ -1,15 +1,51 @@
 #!/usr/bin/env node
-
+require('dotenv').config();
 var IncomingWebhook = require('@slack/client').IncomingWebhook;
-
+var strptime = require('micro-strptime').strptime;
 var url = process.env.SLACK_WEBHOOK_URL || ''; //see section above on sensitive data
 
 var webhook = new IncomingWebhook(url);
 
-webhook.send('Miggy has an owie, too.', function(err, res) {
-    if (err) {
-        console.log('Error:', err);
-    } else {
-        console.log('Message sent: ', res);
+// webhook.send('Miggy has an owie, too.', function(err, res) {
+//     if (err) {
+//         console.log('Error:', err);
+//     } else {
+//         console.log('Message sent: ', res);
+//     }
+// });
+
+var request = require('request');
+var cheerio = require('cheerio');
+
+url = 'http://games.espn.com/flb/leagueoffice?leagueId=108648&seasonId=2017';
+
+request(url, function(error, response, html){
+    // First we'll check to make sure no errors occurred when making the request
+
+    if(!error){
+      var $ = cheerio.load(html);
+      var transactions = $('.lo-recent-activity-item');
+
+      for (i=0; i<transactions.length; i++) {
+        var playersAdded, playersRemoved, transactionTeam, transactionTime;
+
+        var transaction = $(transactions[i]);
+        transactionTime = transaction.find('.recent-activity-when');
+        var description = transaction.find('.recent-activity-description');
+
+        // Apr 269:55 AM
+        var transactionRealDate = strptime(transactionTime.text(), "%b %d%I:%m %p");
+        console.log(transactionRealDate);
+        console.log(new Date());
+        // console.log(description.text());
+
+        // webhook.send(description.text(), function(err, res) {
+        //     if (err) {
+        //         console.log('Error:', err);
+        //     } else {
+        //         console.log('Message sent: ', res);
+        //     }
+        // });
+      }
     }
 });

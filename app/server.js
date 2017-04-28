@@ -5,30 +5,34 @@ var cheerio = require('cheerio');
 var app     = express();
 
 app.get('/scrape', function(req, res){
-    url = 'http://games.espn.com/flb/recentactivity?leagueId=108648';
+  url = 'http://games.espn.com/flb/leagueoffice?leagueId=108648&seasonId=2017';
 
-    request(url, function(error, response, html){
+  request(url, function(error, response, html){
+      // First we'll check to make sure no errors occurred when making the request
 
-        // First we'll check to make sure no errors occurred when making the request
+      if(!error){
+        var $ = cheerio.load(html);
+        var transactions = $('.lo-recent-activity-item');
 
-        if(!error){
-            // Next, we'll utilize the cheerio library on the returned html which will essentially give us jQuery functionality
+        for (i=0; i<transactions.length; i++) {
+          var playersAdded, playersRemoved, transactionTeam, transactionTime;
+          // console.log('*****************');
+          // console.log($(transactions[i]).text());
 
-            var $ = cheerio.load(html);
+          var transaction = $(transactions[i]);
+          transactionTime = transaction.find('.recent-activity-when');
+          // console.log(transactionTime.text());
+          var description = transaction.find('.recent-activity-description');
+          var transactionTeam = description.text().match(/(.*) added/)[1];
+          console.log(transactionTeam);
 
-            // Finally, we'll define the variables we're going to capture
 
-            var playersAdded, playersRemoved, transactionTeam, transactionTime;
-
-            // var title, release, rating;
-            var json = {
-              playersAdded : "",
-              playersRemoved : "",
-              transactionTeam : "",
-              transactionTime : ""
-            };
+          // console.log(description.text().match(/(.*) added (.*)\,/)[2]);
+          // console.log(description.text().match(/(.*) dropped (.*)\,/)[2]);
         }
-    })
+      }
+  })
+
 })
 
 app.listen('8081')
