@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+
+var IncomingWebhook = require('@slack/client').IncomingWebhook;
+
+var url = 'https://hooks.slack.com/services/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'; //process.env.SLACK_WEBHOOK_URL || ''; //see section above on sensitive data
+
+var webhook = new IncomingWebhook(url);
+
+webhook.send('Miggy has an owie, too.', function(err, res) {
+    if (err) {
+        console.log('Error:', err);
+    } else {
+        console.log('Message sent: ', res);
+    }
+});
