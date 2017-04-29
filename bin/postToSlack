@@ -1,15 +1,42 @@
 #!/usr/bin/env node
 
-var IncomingWebhook = require('@slack/client').IncomingWebhook;
+require('dotenv').config(); // Load our sensitive data
 
-var url = process.env.SLACK_WEBHOOK_URL || ''; //see section above on sensitive data
+var IncomingWebhook = require('@slack/client').IncomingWebhook; // Slack library load
+var slackUrl = process.env.SLACK_WEBHOOK_URL || ''; // Store sensitive data in .env file that's not a part of the repository
+var slackWebhook = new IncomingWebhook(slackUrl); // Create the webhook we're going to send to
+var request = require('request'); // Library to make external request to get HTML from another site
+var cheerio = require('cheerio'); // Library for converting HTML response into jquery queryable object
+var moment = require('moment'); // To be used to turn string dates into Date objects
 
-var webhook = new IncomingWebhook(url);
+var scrapeUrl = 'http://games.espn.com/flb/leagueoffice?leagueId=108648&seasonId=2017';
 
-webhook.send('Miggy has an owie, too.', function(err, res) {
+var postMessageToSlack = function(message, webhook) {
+  webhook.send(message, function(err, res) {
     if (err) {
-        console.log('Error:', err);
+      console.log('Error:', err);
     } else {
-        console.log('Message sent: ', res);
+      console.log('Message sent: ', res);
     }
+  });
+}
+
+request(scrapeUrl, function(error, response, html){
+  if(!error){
+    var $ = cheerio.load(html);
+    var transactions = $('.lo-recent-activity-item');
+
+    for (i=0; i<transactions.length; i++) {
+      var transaction = $(transactions[i]);
+      var transactionTime = transaction.find('.recent-activity-when');
+      var description = transaction.find('.recent-activity-description');
+
+      var transactionRealDate = moment(transactionTime.text(), 'MMM DDhh:mm A');
+      var tenMinutesAgo = moment().subtract(10, 'minutes');
+
+      if (transactionRealDate.isAfter(tenMinutesAgo)) {
+        postMessageToSlack(description.text(), slackWebhook);
+      }
+    }
+  }
 });
