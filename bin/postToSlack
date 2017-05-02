@@ -32,12 +32,18 @@ request(scrapeUrl, function(error, response, html){
       var transactionDate = transactionWhen.find('.recent-activity-date')
       var transactionTime = transactionWhen.find('.recent-activity-time')
       var description = transaction.find('.recent-activity-description');
-      var transactionWhenString = transactionDate.text() + " " + transactionTime.text() + " -04";
+      var transactionWhenString = transactionDate.text() + " " + transactionTime.text() + " EST";
 
-      var transactionRealDate = moment(transactionWhenString, 'MMM DD hh:mm A +-HH');
-      var tenMinutesAgo = moment().subtract(10, 'minutes');
+      var transactionRealDate = moment(transactionWhenString, 'MMM DD hh:mm A');
+      var tenMinutesAgo = moment().subtract(10, 'minutes'); // prod is UTC while your local is likely PST
+
+      console.log('********');
+      console.log(transactionRealDate);
+      console.log(tenMinutesAgo);
+      console.log(transactionRealDate.isAfter(tenMinutesAgo));
 
       if (transactionRealDate.isAfter(tenMinutesAgo)) {
+        console.log(description.text());
         postMessageToSlack(description.text(), slackWebhook);
       }
     }
