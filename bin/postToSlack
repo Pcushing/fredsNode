@@ -28,13 +28,22 @@ request(scrapeUrl, function(error, response, html){
 
     for (i=0; i<transactions.length; i++) {
       var transaction = $(transactions[i]);
-      var transactionTime = transaction.find('.recent-activity-when');
+      var transactionWhen = transaction.find('.recent-activity-when');
+      var transactionDate = transactionWhen.find('.recent-activity-date')
+      var transactionTime = transactionWhen.find('.recent-activity-time')
       var description = transaction.find('.recent-activity-description');
+      var transactionWhenString = transactionDate.text() + " " + transactionTime.text() + " -04"; // TODO confirm this works in production
 
-      var transactionRealDate = moment(transactionTime.text(), 'MMM DDhh:mm A');
-      var tenMinutesAgo = moment().subtract(10, 'minutes');
+      var transactionRealDate = moment(transactionWhenString, 'MMM DD hh:mm A +-HH')
+      var tenMinutesAgo = moment().subtract(10, 'minutes'); // prod is UTC while your local is likely PST
+
+      console.log('********');
+      console.log(transactionRealDate);
+      console.log(tenMinutesAgo);
+      console.log(transactionRealDate.isAfter(tenMinutesAgo));
 
       if (transactionRealDate.isAfter(tenMinutesAgo)) {
+        console.log(description.text());
         postMessageToSlack(description.text(), slackWebhook);
       }
     }
