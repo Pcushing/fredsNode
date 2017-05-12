@@ -9,6 +9,10 @@ var request = require('request'); // Library to make external request to get HTM
 var cheerio = require('cheerio'); // Library for converting HTML response into jquery queryable object
 var moment = require('moment'); // To be used to turn string dates into Date objects
 
+var promise = require('bluebird');
+var options = { promiseLib: promise };
+var pgp = require('pg-promise')(options);
+var db = pgp('postgres://localhost:5432/freds_node_dev');
 
 var scrapeUrl = 'http://games.espn.com/flb/leagueoffice?leagueId=108648&seasonId=2017';
 
@@ -38,14 +42,19 @@ request(scrapeUrl, function(error, response, html){
       var transactionRealDate = moment(transactionWhenString, 'MMM DD hh:mm A +-HH')
       var tenMinutesAgo = moment().subtract(10, 'minutes'); // prod is UTC while your local is likely PST
 
-      console.log('********');
-      console.log(transactionWhenString);
-      // console.log(transactionRealDate);
-      // console.log(tenMinutesAgo);
-      // console.log(transactionRealDate.isAfter(tenMinutesAgo));
-
-      if (transactionRealDate.isAfter(tenMinutesAgo)) {
+      if (true) {
+        console.log(transactionRealDate);
         console.log(description.text());
+
+        var transactionObj = {
+          transactionat: transactionRealDate,
+          description: description.text()
+        };
+
+        results = db.query('SELECT * FROM transactions WHERE description = $1', description.text());
+        console.log(results);
+
+        // db.query('insert into transactions(${this~}) values(${transactionat}, ${description})', transactionObj);
         // postMessageToSlack(description.text(), slackWebhook);
       }
     }
