@@ -6,6 +6,8 @@ var moment = require('moment'); // To be used to turn string dates into Date obj
 
 var scrapeUrl = 'http://games.espn.com/flb/leagueoffice?leagueId=108648&seasonId=2017';
 
+var slackPost = require('./postToSlack');
+
 request(scrapeUrl, function(error, response, html){
   if(!error){
     var $ = cheerio.load(html);
@@ -31,10 +33,9 @@ request(scrapeUrl, function(error, response, html){
         } else {
           fixedMessage = originalMessage.slice(0, originalMessage.indexOf(' to'))
         }
-        var finalMessage = fixedMessage.replace(teamAbbrev, newTeamList[newTeamList.indexOf(teamAbbrev) - 1]);
-        console.log(finalMessage);
-        
-        // postMessageToSlack(finalMessage, slackWebhook);
+        // var finalMessage = fixedMessage.replace(teamAbbrev, newTeamList[newTeamList.indexOf(teamAbbrev) - 1]);
+        console.log(fixedMessage);
+        slackPost(fixedMessage);        
       }
     }
   }

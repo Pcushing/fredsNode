@@ -5,6 +5,8 @@ var cheerio = require('cheerio'); // Library for converting HTML response into j
 
 var scrapeUrl = 'http://games.espn.com/flb/leagueoffice?leagueId=108648&seasonId=2017';
 
+var slackPost = require('./postToSlack');
+
 request(scrapeUrl, function(error, response, html){
   if(!error){
     var $ = cheerio.load(html);
