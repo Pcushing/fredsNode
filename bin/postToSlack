@@ -9,6 +9,7 @@ var request = require('request'); // Library to make external request to get HTM
 var cheerio = require('cheerio'); // Library for converting HTML response into jquery queryable object
 var moment = require('moment'); // To be used to turn string dates into Date objects
 
+
 var scrapeUrl = 'http://games.espn.com/flb/leagueoffice?leagueId=108648&seasonId=2017';
 
 var postMessageToSlack = function(message, webhook) {
@@ -38,13 +39,14 @@ request(scrapeUrl, function(error, response, html){
       var tenMinutesAgo = moment().subtract(10, 'minutes'); // prod is UTC while your local is likely PST
 
       console.log('********');
-      console.log(transactionRealDate);
-      console.log(tenMinutesAgo);
-      console.log(transactionRealDate.isAfter(tenMinutesAgo));
+      console.log(transactionWhenString);
+      // console.log(transactionRealDate);
+      // console.log(tenMinutesAgo);
+      // console.log(transactionRealDate.isAfter(tenMinutesAgo));
 
       if (transactionRealDate.isAfter(tenMinutesAgo)) {
         console.log(description.text());
-        postMessageToSlack(description.text(), slackWebhook);
+        // postMessageToSlack(description.text(), slackWebhook);
       }
     }
   }
