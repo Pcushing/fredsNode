@@ -45,20 +45,9 @@ request(scrapeUrl, function(error, response, html){
       var tenMinutesAgo = moment().subtract(10, 'minutes'); // prod is UTC while your local is likely PST
 
       if (true) {
-        console.log(transactionRealDate);
-        console.log(description.text());
 
-        var transactionObj = {
-          transactionat: transactionRealDate,
-          description: description.text()
-        };
+        // Transaction.create(description: description, transactionat: transactionAt);
 
-        results = db.query('SELECT * FROM transactions WHERE description = $1', description.text());
-        console.log(results);
-
-        Transaction.create(description: description, transactionat: transactionAt);
-
-        // postMessageToSlack(description.text(), slackWebhook);
       }
     }
   }

@@ -1,35 +1,17 @@
 {
-  "name": "freds_node",
-  "version": "1.0.0",
-  "description": "Slack bot to track Fred's Slacks",
-  "main": "index.js",
+  "name": "fredsnode",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node ./bin/www"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Pcushing/fredsNode.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Pcushing/fredsNode/issues"
-  },
-  "homepage": "https://github.com/Pcushing/fredsNode#readme",
   "dependencies": {
-    "@slack/client": "^3.9.0",
-    "cheerio": "^0.22.0",
-    "dotenv": "^4.0.0",
-    "express": "^4.15.2",
-    "lodash": "^4.17.4",
-    "moment": "^2.18.1",
-    "pg": "^6.1.5",
-    "pg-hstore": "^2.3.2",
-    "request": "^2.81.0",
-    "sequelize": "^3.30.4"
-  },
-  "devDependencies": {
-    "mocha": "^3.2.0"
+    "body-parser": "~1.17.1",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.3",
+    "express": "~4.15.2",
+    "jade": "~1.11.0",
+    "morgan": "~1.8.1",
+    "serve-favicon": "~2.4.2"
   }
 }
