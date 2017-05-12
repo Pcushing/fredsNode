@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+
+var request = require('request'); // Library to make external request to get HTML from another site
+var cheerio = require('cheerio'); // Library for converting HTML response into jquery queryable object
+
+var scrapeUrl = 'http://games.espn.com/flb/leagueoffice?leagueId=108648&seasonId=2017';
+
+request(scrapeUrl, function(error, response, html){
+  if(!error){
+    var $ = cheerio.load(html);
+
+    var teams = [];
+
+    $('#games-tabs1 li a').each(function(element) {
+      var nameWithShort = $(this).text();
+      var name = nameWithShort.slice(nameWithShort[0], nameWithShort.indexOf(' ('));
+      var abbreviation = (nameWithShort.slice(nameWithShort.indexOf(' (') + 2, nameWithShort.length - 1));
+      var url = 'http://games.espn.com' + $(this).attr('href');
+      var teamObject = { name: name, abbreviation: abbreviation, url: url };
+      teams.push(teamObject);
+    });
+    console.log(teams)
+  }
+});
