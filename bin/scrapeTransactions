@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+
+var request = require('request'); // Library to make external request to get HTML from another site
+var cheerio = require('cheerio'); // Library for converting HTML response into jquery queryable object
+var moment = require('moment'); // To be used to turn string dates into Date objects
+
+var scrapeUrl = 'http://games.espn.com/flb/leagueoffice?leagueId=108648&seasonId=2017';
+
+var slackPost = require('./postToSlack');
+
+request(scrapeUrl, function(error, response, html){
+  if(!error){
+    var $ = cheerio.load(html);
+    var transactions = $('.lo-recent-activity-item');
+
+    for (i=0; i<transactions.length; i++) {
+      var transaction = $(transactions[i]);
+      var transactionWhen = transaction.find('.recent-activity-when');
+      var transactionDate = transactionWhen.find('.recent-activity-date')
+      var transactionTime = transactionWhen.find('.recent-activity-time')
+      var description = transaction.find('.recent-activity-description');
+      var transactionWhenString = transactionDate.text() + " " + transactionTime.text() + " -04"; // TODO confirm this works in production
+      var transactionRealDate = moment(transactionWhenString, 'MMM DD hh:mm A +-HH')
+      var tenMinutesAgo = moment().subtract(10, 'minutes'); // prod is UTC while your local is likely PST
+
+      if (transactionRealDate.isAfter(tenMinutesAgo)) {
+        var originalMessage = description.text()
+        var fixedMessage = ''
+        var teamAbbrev = (originalMessage.slice(0, originalMessage.indexOf(' ')))
+
+        if (originalMessage.indexOf(teamAbbrev) !== originalMessage.lastIndexOf(teamAbbrev)) {
+          fixedMessage = originalMessage.slice(0, originalMessage.indexOf(' to')) + ', and ' + originalMessage.slice((originalMessage.lastIndexOf(teamAbbrev) + teamAbbrev.length + 1), originalMessage.length)
+        } else {
+          fixedMessage = originalMessage.slice(0, originalMessage.indexOf(' to'))
+        }
+        // var finalMessage = fixedMessage.replace(teamAbbrev, newTeamList[newTeamList.indexOf(teamAbbrev) - 1]);
+        console.log(fixedMessage);
+        slackPost(fixedMessage);        
+      }
+    }
+  }
+});
