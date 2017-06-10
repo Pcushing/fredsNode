@@ -6,7 +6,10 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     classMethods: {
       associate: function(models) {
-        Transaction.belongsTo(models.Team);
+        Transaction.belongsTo(models.Team, {
+          foreignKey: 'teamId',
+          onDelete: 'CASCADE'
+        });
       }
     }
   });

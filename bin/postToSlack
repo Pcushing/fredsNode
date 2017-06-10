@@ -9,12 +9,7 @@ var request = require('request'); // Library to make external request to get HTM
 var cheerio = require('cheerio'); // Library for converting HTML response into jquery queryable object
 var moment = require('moment'); // To be used to turn string dates into Date objects
 
-var promise = require('bluebird');
-var options = { promiseLib: promise };
-var pgp = require('pg-promise')(options);
-var db = pgp('postgres://localhost:5432/freds_node_dev');
-
-// var sequelize = new Sequelize('postgres://localhost:5432/freds_node_dev');
+// TODO remove bluebird, promise, pg-promise
 
 var scrapeUrl = 'http://games.espn.com/flb/leagueoffice?leagueId=108648&seasonId=2017';
 
@@ -29,6 +24,8 @@ var postMessageToSlack = function(message, webhook) {
 }
 
 request(scrapeUrl, function(error, response, html){
+  const Transaction = require('../models').Transaction;
+
   if(!error){
     var $ = cheerio.load(html);
     var transactions = $('.lo-recent-activity-item');
@@ -45,9 +42,7 @@ request(scrapeUrl, function(error, response, html){
       var tenMinutesAgo = moment().subtract(10, 'minutes'); // prod is UTC while your local is likely PST
 
       if (true) {
-
-        // Transaction.create(description: description, transactionat: transactionAt);
-
+        Transaction.create({ description: description.text() }); //, transaction_at: transactionRealDate
       }
     }
   }
