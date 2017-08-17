@@ -38,8 +38,9 @@ request(scrapeUrl, function(error, response, html){
       var description = transaction.find('.recent-activity-description');
       var transactionWhenString = transactionDate.text() + " " + transactionTime.text() + " -04"; // TODO confirm this works in production
 
-      var transactionRealDate = moment(transactionWhenString, 'MMM DD hh:mm A +-HH')
+      var transactionRealDate = moment(transactionWhenString, 'MMM DD hh:mm A +-HH');
       var tenMinutesAgo = moment().subtract(10, 'minutes'); // prod is UTC while your local is likely PST
+
 
       if (true) {
         Transaction.create({ description: description.text() }); //, transaction_at: transactionRealDate
