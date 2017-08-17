@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 
 require('dotenv').config(); // Load our sensitive data
-
+var Sequelize = require('sequelize');
 var IncomingWebhook = require('@slack/client').IncomingWebhook; // Slack library load
 var slackUrl = process.env.SLACK_WEBHOOK_URL || ''; // Store sensitive data in .env file that's not a part of the repository
 var slackWebhook = new IncomingWebhook(slackUrl); // Create the webhook we're going to send to
 var request = require('request'); // Library to make external request to get HTML from another site
 var cheerio = require('cheerio'); // Library for converting HTML response into jquery queryable object
 var moment = require('moment'); // To be used to turn string dates into Date objects
+
+// TODO remove bluebird, promise, pg-promise
 
 var scrapeUrl = 'http://games.espn.com/flb/leagueoffice?leagueId=108648&seasonId=2017';
 
@@ -22,6 +24,8 @@ var postMessageToSlack = function(message, webhook) {
 }
 
 request(scrapeUrl, function(error, response, html){
+  const Transaction = require('../models').Transaction;
+
   if(!error){
     var $ = cheerio.load(html);
     var transactions = $('.lo-recent-activity-item');
@@ -34,17 +38,12 @@ request(scrapeUrl, function(error, response, html){
       var description = transaction.find('.recent-activity-description');
       var transactionWhenString = transactionDate.text() + " " + transactionTime.text() + " -04"; // TODO confirm this works in production
 
-      var transactionRealDate = moment(transactionWhenString, 'MMM DD hh:mm A +-HH')
+      var transactionRealDate = moment(transactionWhenString, 'MMM DD hh:mm A +-HH');
       var tenMinutesAgo = moment().subtract(10, 'minutes'); // prod is UTC while your local is likely PST
 
-      console.log('********');
-      console.log(transactionRealDate);
-      console.log(tenMinutesAgo);
-      console.log(transactionRealDate.isAfter(tenMinutesAgo));
 
-      if (transactionRealDate.isAfter(tenMinutesAgo)) {
-        console.log(description.text());
-        postMessageToSlack(description.text(), slackWebhook);
+      if (true) {
+        Transaction.create({ description: description.text() }); //, transaction_at: transactionRealDate
       }
     }
   }
